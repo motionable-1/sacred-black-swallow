@@ -1,55 +1,159 @@
-import { AbsoluteFill, Artifact, useCurrentFrame, useVideoConfig } from "remotion";
-import { loadFont } from "@remotion/google-fonts/SpaceMono";
+import React from "react";
+import {
+  AbsoluteFill,
+  Artifact,
+  useCurrentFrame,
+  Img,
+  Audio,
+  Sequence,
+} from "remotion";
+import { loadFont as loadSpaceGrotesk } from "@remotion/google-fonts/SpaceGrotesk";
+import { loadFont as loadDMSans } from "@remotion/google-fonts/DMSans";
+import {
+  TransitionSeries,
+  linearTiming,
+} from "../library/components/layout/Transition";
+import { blurDissolve } from "../library/components/layout/transitions/presentations/blurDissolve";
+import { GridBackground } from "../library/components/effects/GridBackground";
+import { FloatingElements } from "./scenes/FloatingElements";
+import { HeroScene } from "./scenes/HeroScene";
+import { FeatureScene } from "./scenes/FeatureScene";
+import { ClosingScene } from "./scenes/ClosingScene";
 
-const LoaderDots = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+const NEURAL_IMG =
+  "https://pub-e3bfc0083b0644b296a7080b21024c5f.r2.dev/uploads/1773232015274_qpa40gj26s_runway_ai_neural.png";
+const ROBOTICS_IMG =
+  "https://pub-e3bfc0083b0644b296a7080b21024c5f.r2.dev/uploads/1773232026400_950kxr6t1ll_runway_robotics.png";
+const WORLD_SIM_IMG =
+  "https://pub-e3bfc0083b0644b296a7080b21024c5f.r2.dev/uploads/1773232037636_w0fpz1lqmwi_runway_world_sim.png";
 
-  const dot = (index: number) => {
-    const phase = (frame / fps) * 2 * Math.PI + index * 0.8;
-    return 0.35 + Math.max(0, Math.sin(phase)) * 0.65;
-  };
-
-  return (
-    <span className="inline-flex gap-1">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="inline-block text-sky-300"
-          style={{ opacity: dot(i) }}
-        >
-          .
-        </span>
-      ))}
-    </span>
-  );
-};
+const ALL_IMAGES = [NEURAL_IMG, ROBOTICS_IMG, WORLD_SIM_IMG];
 
 export const Main: React.FC = () => {
-  const { fontFamily } = loadFont();
+  const { fontFamily: headingFont } = loadSpaceGrotesk();
+  loadDMSans();
   const frame = useCurrentFrame();
+
+
+
   return (
     <>
-      {/* Leave this here to generate a thumbnail */}
       {frame === 0 && (
         <Artifact content={Artifact.Thumbnail} filename="thumbnail.jpeg" />
       )}
-      <AbsoluteFill className="flex items-center justify-center bg-[#0f1115]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.28),transparent_45%),radial-gradient(circle_at_70%_60%,rgba(16,185,129,0.2),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:48px_48px] opacity-40" />
-        <div
-          className="flex flex-col items-center gap-4 text-center text-white drop-shadow-[0_12px_32px_rgba(0,0,0,0.55)]"
-          style={{ fontFamily, fontWeight: 700, letterSpacing: "0.01em" }}
-        >
-          <div className="text-4xl md:text-5xl font-bold">
-            <span className="font-extrabold text-sky-300">TypeFrames</span> is
-            building your video
-            <LoaderDots />
-          </div>
-          <div className="text-base md:text-lg text-white/70">
-            Rendering scenes, timing transitions, and polishing frames.
-          </div>
+      <AbsoluteFill
+        style={{
+          backgroundColor: "#FFFFFF",
+          fontFamily: headingFont,
+        }}
+      >
+        {/* Global background - subtle grid + floating elements */}
+        <GridBackground
+          cellSize={60}
+          color="rgba(107, 114, 128, 0.04)"
+          style="lines"
+          animate
+          velocity={8}
+          direction="up"
+          fadeEdges
+        />
+        <FloatingElements />
+
+        {/* Preload all images so they're ready across all scenes */}
+        <div style={{ position: "absolute", width: 0, height: 0, overflow: "hidden", opacity: 0 }}>
+          {ALL_IMAGES.map((src) => (
+            <Img key={src} src={src} style={{ width: 1, height: 1 }} />
+          ))}
         </div>
+
+        {/* Transition sound effects */}
+        {[120, 250, 380, 510].map((f) => (
+          <Sequence key={f} from={f} durationInFrames={60}>
+            <Audio
+              src="https://pub-e3bfc0083b0644b296a7080b21024c5f.r2.dev/sfx/1773232664193_b5ajgsij3ul_sfx_Soft_ambient_tech_whoosh__mini.mp3"
+              volume={0.3}
+            />
+          </Sequence>
+        ))}
+
+        {/* Scenes with transitions */}
+        <TransitionSeries>
+          {/* Scene 1: Hero intro */}
+          <TransitionSeries.Sequence durationInFrames={140}>
+            <AbsoluteFill style={{ fontFamily: headingFont }}>
+              <HeroScene />
+            </AbsoluteFill>
+          </TransitionSeries.Sequence>
+
+          <TransitionSeries.Transition
+            presentation={blurDissolve()}
+            timing={linearTiming({ durationInFrames: 20 })}
+          />
+
+          {/* Scene 2: Gen-4.5 */}
+          <TransitionSeries.Sequence durationInFrames={150}>
+            <AbsoluteFill style={{ fontFamily: headingFont }}>
+              <FeatureScene
+                label="Gen-4.5"
+                title="The World's Best Generative Video Model"
+                description="Superior motion quality and visual fidelity. Create stunning, photorealistic video content that pushes the boundaries of what AI can generate."
+                imageUrl={NEURAL_IMG}
+                iconUrl="https://api.iconify.design/lucide/video.svg?color=%236B7280&width=22"
+                accentColor="#6B7280"
+              />
+            </AbsoluteFill>
+          </TransitionSeries.Sequence>
+
+          <TransitionSeries.Transition
+            presentation={blurDissolve()}
+            timing={linearTiming({ durationInFrames: 20 })}
+          />
+
+          {/* Scene 3: GWM Robotics */}
+          <TransitionSeries.Sequence durationInFrames={150}>
+            <AbsoluteFill style={{ fontFamily: headingFont }}>
+              <FeatureScene
+                label="GWM Robotics"
+                title="World Models for Physical Intelligence"
+                description="Simulating physical interactions and robotic behaviors. World models that understand the laws of physics to power the next generation of robotics."
+                imageUrl={ROBOTICS_IMG}
+                iconUrl="https://api.iconify.design/mdi/robot-outline.svg?color=%236B7280&width=22"
+                accentColor="#6B7280"
+              />
+            </AbsoluteFill>
+          </TransitionSeries.Sequence>
+
+          <TransitionSeries.Transition
+            presentation={blurDissolve()}
+            timing={linearTiming({ durationInFrames: 20 })}
+          />
+
+          {/* Scene 4: Runway Characters */}
+          <TransitionSeries.Sequence durationInFrames={150}>
+            <AbsoluteFill style={{ fontFamily: headingFont }}>
+              <FeatureScene
+                label="Characters"
+                title="Real-Time Autonomous Video Agents"
+                description="Natural conversation abilities powered by AI. Runway Characters brings autonomous video agents to life with unprecedented realism and interactivity."
+                imageUrl={WORLD_SIM_IMG}
+                iconUrl="https://api.iconify.design/lucide/globe.svg?color=%236B7280&width=22"
+                accentColor="#6B7280"
+              />
+            </AbsoluteFill>
+          </TransitionSeries.Sequence>
+
+          <TransitionSeries.Transition
+            presentation={blurDissolve()}
+            timing={linearTiming({ durationInFrames: 20 })}
+          />
+
+          {/* Scene 5: Closing CTA */}
+          <TransitionSeries.Sequence durationInFrames={180}>
+            <AbsoluteFill style={{ fontFamily: headingFont }}>
+              <ClosingScene />
+            </AbsoluteFill>
+          </TransitionSeries.Sequence>
+        </TransitionSeries>
       </AbsoluteFill>
     </>
   );
