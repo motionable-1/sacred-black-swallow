@@ -119,6 +119,7 @@ export const Main: React.FC = () => {
                 imageUrl={ROBOTICS_IMG}
                 iconUrl="https://api.iconify.design/mdi/robot-outline.svg?color=%236B7280&width=22"
                 accentColor="#6B7280"
+                reversed
               />
             </AbsoluteFill>
           </TransitionSeries.Sequence>

@@ -30,26 +30,48 @@ export const ClosingScene: React.FC = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const urlY = interpolate(frame, [70, 85], [10, 0], {
+  const urlScale = interpolate(frame, [70, 85], [0.9, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.out(Easing.back(1.3)),
+  });
+
+  // Subtle glow pulse behind hexagon
+  const glowScale = 1 + 0.05 * Math.sin((frame / fps) * 2);
+  const glowOpacity = interpolate(frame, [40, 55], [0, 0.2], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Bottom line animation
+  const bottomLineWidth = interpolate(frame, [85, 110], [0, 200], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
 
-  // Subtle glow pulse behind hexagon
-  const glowScale = 1 + 0.05 * Math.sin((frame / fps) * 2);
-  const glowOpacity = interpolate(frame, [40, 55], [0, 0.15], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
   // Industry pill animations
   const industries = ["Media", "Entertainment", "Robotics", "Science"];
-  
+
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-        {/* Tagline */}
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 0,
+        }}
+      >
+        {/* Main headline */}
         <TextAnimation
           createTimeline={({ textRef, tl, SplitText }) => {
             const split = new SplitText(textRef.current, { type: "words" });
@@ -64,13 +86,13 @@ export const ClosingScene: React.FC = () => {
             return tl;
           }}
           startFrom={5}
-          style={{ textAlign: "center", marginBottom: 24 }}
+          style={{ textAlign: "center", marginBottom: 20 }}
         >
           <div
             style={{
-              fontSize: 48,
+              fontSize: 52,
               fontWeight: 700,
-              color: "#262626",
+              color: "#1a1a1a",
               lineHeight: 1.2,
               textWrap: "balance",
             }}
@@ -84,15 +106,15 @@ export const ClosingScene: React.FC = () => {
           style={{
             opacity: industriesOpacity,
             transform: `translateY(${industriesY}px)`,
-            marginBottom: 20,
+            marginBottom: 24,
           }}
         >
           <FadeInWords
             startFrom={20}
             stagger={0.06}
             style={{
-              fontSize: 20,
-              color: "#6B7280",
+              fontSize: 21,
+              color: "#4B5563",
               textAlign: "center",
               maxWidth: 600,
               lineHeight: 1.5,
@@ -106,34 +128,45 @@ export const ClosingScene: React.FC = () => {
         <div
           style={{
             display: "flex",
-            gap: 12,
-            marginBottom: 30,
+            gap: 14,
+            marginBottom: 32,
           }}
         >
           {industries.map((ind, i) => {
             const pillDelay = 35 + i * 5;
-            const pillOpacity = interpolate(frame, [pillDelay, pillDelay + 12], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            });
-            const pillScale = interpolate(frame, [pillDelay, pillDelay + 12], [0.8, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-              easing: Easing.out(Easing.back(1.5)),
-            });
+            const pillOpacity = interpolate(
+              frame,
+              [pillDelay, pillDelay + 12],
+              [0, 1],
+              {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }
+            );
+            const pillScale = interpolate(
+              frame,
+              [pillDelay, pillDelay + 12],
+              [0.8, 1],
+              {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+                easing: Easing.out(Easing.back(1.5)),
+              }
+            );
             return (
               <div
                 key={ind}
                 style={{
                   opacity: pillOpacity,
                   transform: `scale(${pillScale})`,
-                  padding: "8px 22px",
+                  padding: "10px 26px",
                   borderRadius: 100,
-                  border: "1px solid #D1D5DB",
+                  border: "1.5px solid #9CA3AF",
                   fontSize: 15,
                   fontWeight: 500,
-                  color: "#6B7280",
-                  letterSpacing: "0.05em",
+                  color: "#4B5563",
+                  letterSpacing: "0.06em",
+                  backgroundColor: "rgba(156, 163, 175, 0.06)",
                 }}
               >
                 {ind}
@@ -147,13 +180,14 @@ export const ClosingScene: React.FC = () => {
           style={{
             width: dividerWidth,
             height: 1,
-            background: "linear-gradient(90deg, transparent, #9CA3AF, transparent)",
-            marginBottom: 30,
+            background:
+              "linear-gradient(90deg, transparent, #6B7280, transparent)",
+            marginBottom: 32,
           }}
         />
 
         {/* Hexagon + glow */}
-        <div style={{ position: "relative", marginBottom: 24 }}>
+        <div style={{ position: "relative", marginBottom: 20 }}>
           <div
             style={{
               position: "absolute",
@@ -163,7 +197,8 @@ export const ClosingScene: React.FC = () => {
               width: 120,
               height: 120,
               borderRadius: "50%",
-              background: "radial-gradient(circle, #6B728040, transparent 70%)",
+              background:
+                "radial-gradient(circle, #6B728050, transparent 70%)",
               opacity: glowOpacity,
             }}
           />
@@ -195,31 +230,42 @@ export const ClosingScene: React.FC = () => {
           startFrom={58}
           stagger={0.04}
           style={{
-            fontSize: 38,
+            fontSize: 42,
             fontWeight: 700,
-            color: "#262626",
-            letterSpacing: "0.12em",
+            color: "#1a1a1a",
+            letterSpacing: "0.14em",
             marginBottom: 14,
           }}
         >
           RUNWAY
         </FadeInChars>
 
-        {/* URL */}
+        {/* Bottom line under RUNWAY */}
+        <div
+          style={{
+            width: bottomLineWidth,
+            height: 1,
+            background:
+              "linear-gradient(90deg, transparent, #9CA3AF, transparent)",
+            marginBottom: 20,
+          }}
+        />
+
+        {/* URL - prominent and bold */}
         <div
           style={{
             opacity: urlOpacity,
-            transform: `translateY(${urlY}px)`,
+            transform: `scale(${urlScale})`,
           }}
         >
           <FadeInChars
             startFrom={75}
             stagger={0.02}
             style={{
-              fontSize: 18,
-              fontWeight: 400,
-              color: "#9CA3AF",
-              letterSpacing: "0.15em",
+              fontSize: 24,
+              fontWeight: 500,
+              color: "#4B5563",
+              letterSpacing: "0.12em",
             }}
           >
             runwayml.com
